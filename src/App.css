@@ -1,5 +1,12 @@
 .App {
   text-align: center;
+  margin: 0 auto;
+}
+
+#signInDiv{
+  margin: 10rem auto;
+  display: block;
+  width: 20vw;
 }
 
 .App-logo {

@@ -155,23 +155,23 @@ const Gmail = () => {
     ifrm.innerHTML = getMessageBody(message.payload);
   };
 
-  // React.useEffect(() => {
-  //   emailData?.map((email) => {
-  //     return addToFrame(email);
-  //   });
-  // }, [emailData]);
-
   useEffect(() => {
     emailList.forEach((email) => {
       getEmail(email.id);
     });
   }, [emailList]);
 
-  console.log(emailData);
-  // console.log(getMessageBody(emailData[0]?.payload));
   if (emailData.payload) {
-    const b = getMessageBody(emailData?.payload);
-    console.log(b);
+    const emailHTML = getMessageBody(emailData?.payload);
+    const { body } = new DOMParser().parseFromString(emailHTML, "text/html");
+    const value = body.querySelector("td").innerText;
+    console.log(value);
+    const total = value
+      .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)[0]
+      .split("TANGGAL")[0];
+    const date = value.match(/(?<=WAKTU\s+).*?(?=\s+\+0800Detail)/gs)[0];
+    const restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+- )/gs)[0];
+    console.log(date, restaurant, total);
   }
 
   return (

@@ -1,19 +1,21 @@
 import { Base64 } from "js-base64";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Gmail = () => {
   const [emailList, setEmailList] = useState([]);
   const [user, setUser] = useState();
   const [message, setMessage] = useState();
 
+  const [emailData, setEmailData] = useState([]);
+
   let tokenClient;
   var clientId = process.env.REACT_APP_CLIENT_ID;
-  var email = user?.email;
+  var email = user?.emailAddress;
   const santanaToken = localStorage.getItem("santanaToken");
 
   const scopes = [
-    "https://mail.google.com/",
-    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    // "https://www.googleapis.com/auth/userinfo.email",
   ];
 
   function initTokenClient() {
@@ -45,14 +47,18 @@ const Gmail = () => {
   }
 
   function getObject() {
-    fetch(`https://gmail.googleapis.com/gmail/v1/users/${email}/messages`, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("santanaToken"),
+    // mandiri Label_4280134530840289324
+    // grab Label_8079547559545692198
+    fetch(
+      `https://gmail.googleapis.com/gmail/v1/users/${email}/messages?labelIds=Label_8079547559545692198`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("santanaToken"),
+        },
       },
-    })
+    )
       .then((response) => response.json())
       .then((content) => {
-        console.log(content);
         setEmailList(content.messages);
       })
       .catch((err) => {
@@ -60,9 +66,9 @@ const Gmail = () => {
       });
   }
 
-  function getEmail() {
+  function getEmail(email_id) {
     fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/${email}/messages/${emailList[0].id}`,
+      `https://gmail.googleapis.com/gmail/v1/users/${email}/messages/${email_id}`,
       {
         headers: {
           Authorization: "Bearer " + santanaToken,
@@ -71,25 +77,27 @@ const Gmail = () => {
     )
       .then((response) => response.json())
       .then((content) => {
-        console.log(content);
-        setMessage(content);
+        // console.log(content);
+        // setMessage(content);
+        // emailData.push(content);
+        setEmailData(content);
+        // setEmailData((prev) => [...prev, getEmail(content.id)]);
+        // return content;
       })
       .catch((err) => {
         console.log(err);
       });
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (santanaToken !== "") {
-      // https://www.googleapis.com/oauth2/v2/userinfo?access_token="YOUR_ACCESS_TOKEN"
-      fetch(`https://www.googleapis.com/oauth2/v2/userinfo`, {
+      fetch(`https://gmail.googleapis.com/gmail/v1/users/me/profile`, {
         headers: {
           Authorization: "Bearer " + santanaToken,
         },
       })
         .then((response) => response.json())
         .then((content) => {
-          // console.log(content);
           setUser(content);
         })
         .catch((err) => {
@@ -97,6 +105,24 @@ const Gmail = () => {
         });
     }
   }, [santanaToken]);
+
+  // Get labels
+  // useEffect(() => {
+  //   if (santanaToken !== "") {
+  //     fetch(`https://gmail.googleapis.com/gmail/v1/users/${email}/labels`, {
+  //       headers: {
+  //         Authorization: "Bearer " + santanaToken,
+  //       },
+  //     })
+  //       .then((response) => response.json())
+  //       .then((content) => {
+  //         console.log(content, "label");
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   }
+  // }, [email, santanaToken]);
 
   const handleLogout = () => {
     localStorage.setItem("santanaToken", "");
@@ -125,17 +151,28 @@ const Gmail = () => {
   };
 
   const addToFrame = (message) => {
-    console.log(document?.getElementById("iframe"), "iframe");
     let ifrm = document?.getElementById("iframe");
     ifrm.innerHTML = getMessageBody(message.payload);
   };
 
-  React.useEffect(() => {
-    if (message) {
-      addToFrame(message);
-    }
-    // eslint-disable-next-line
-  }, [message]);
+  // React.useEffect(() => {
+  //   emailData?.map((email) => {
+  //     return addToFrame(email);
+  //   });
+  // }, [emailData]);
+
+  useEffect(() => {
+    emailList.forEach((email) => {
+      getEmail(email.id);
+    });
+  }, [emailList]);
+
+  console.log(emailData);
+  // console.log(getMessageBody(emailData[0]?.payload));
+  if (emailData.payload) {
+    const b = getMessageBody(emailData?.payload);
+    console.log(b);
+  }
 
   return (
     <div>

@@ -46,47 +46,46 @@ const Gmail = () => {
     tokenClient.requestAccessToken();
   }
 
-  function getObject() {
+  async function getObject() {
     // mandiri Label_4280134530840289324
     // grab Label_8079547559545692198
-    fetch(
+    const res = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/${email}/messages?labelIds=Label_8079547559545692198`,
       {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("santanaToken"),
         },
       },
-    )
-      .then((response) => response.json())
-      .then((content) => {
-        setEmailList(content.messages);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    );
+    const res2 = await res.json();
+    return res2.messages;
+    // .then((response) => response.json())
+    // .then((content) => {
+    //   return content.messages;
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
   }
 
-  function getEmail(email_id) {
-    fetch(
+  async function getEmail(email_id) {
+    const res = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/${email}/messages/${email_id}`,
       {
         headers: {
           Authorization: "Bearer " + santanaToken,
         },
       },
-    )
-      .then((response) => response.json())
-      .then((content) => {
-        // console.log(content);
-        // setMessage(content);
-        // emailData.push(content);
-        setEmailData(content);
-        // setEmailData((prev) => [...prev, getEmail(content.id)]);
-        // return content;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    );
+    const res2 = res.json();
+    return res2;
+    // .then((response) => response.json())
+    // .then((content) => {
+    //   return content;
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
   }
 
   useEffect(() => {
@@ -155,24 +154,57 @@ const Gmail = () => {
     ifrm.innerHTML = getMessageBody(message.payload);
   };
 
-  useEffect(() => {
-    emailList.forEach((email) => {
-      getEmail(email.id);
-    });
-  }, [emailList]);
+  //   useEffect(() => {
+  //     emailList.forEach((email) => {
+  //       getEmail(email.id);
+  //     });
 
-  if (emailData.payload) {
-    const emailHTML = getMessageBody(emailData?.payload);
-    const { body } = new DOMParser().parseFromString(emailHTML, "text/html");
-    const value = body.querySelector("td").innerText;
-    console.log(value);
-    const total = value
-      .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)[0]
-      .split("TANGGAL")[0];
-    const date = value.match(/(?<=WAKTU\s+).*?(?=\s+\+0800Detail)/gs)[0];
-    const restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+- )/gs)[0];
-    console.log(date, restaurant, total);
-  }
+  //     const emails =  await Promise.all(
+  //   storyIds.slice(0, 30).map((storyId) => getStory(storyId))
+  // );
+  // console.log(emails);
+  //   }, [emailList]);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchMyAPI() {
+      setLoading(true);
+      const ids = await getObject();
+
+      // console.log(ids, "ids");
+
+      const res = await Promise.all(
+        ids?.map(async (email) => {
+          const res3 = await getEmail(email.id);
+          return res3;
+        }),
+      );
+      // setEmailData(res);
+      console.log(res, "res");
+      setLoading(false);
+    }
+    console.log("called");
+    if (user) fetchMyAPI();
+  }, [user]);
+
+  // console.log(emailData, "email data");
+
+  // if (!loading) {
+  //   emailData.map((email) => {
+  //     console.log(email);
+  //     const emailHTML = getMessageBody(email?.payload);
+  //     const { body } = new DOMParser().parseFromString(emailHTML, "text/html");
+  //     const value = body.querySelector("td").innerText;
+  //     console.log(value);
+  //     const total = value
+  //       .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)[0]
+  //       .split("TANGGAL")[0];
+  //     const date = value.match(/(?<=WAKTU\s+).*?(?=\s+\+0800Detail)/gs)?.[0];
+  //     const restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+- )/gs)?.[0];
+  //     console.log(date, restaurant, total);
+  //   });
+  // }
 
   return (
     <div>

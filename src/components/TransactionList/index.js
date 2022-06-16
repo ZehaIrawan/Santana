@@ -14,9 +14,18 @@ const TransactionList = () => {
     },
   ];
 
+  const sum = data.reduce(function (previousValue, currentValue) {
+    return previousValue + parseInt(currentValue.total);
+  }, 0);
+
+  const formatCurrency = (value) => {
+    const res = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return res;
+  };
+
   return (
     <div className="container">
-      <h1>Transaction List</h1>
+      <h1 style={{ textAlign: "left" }}>Transaction List</h1>
 
       {data.map((item) => (
         <div key={item.date}>
@@ -28,7 +37,10 @@ const TransactionList = () => {
             }}
           >
             <span>{item.restaurant}</span>
-            <span>{`- Rp ${item.total}`}</span>
+            <span>{`- Rp ${item.total.replace(
+              /\B(?=(\d{3})+(?!\d))/g,
+              ".",
+            )}`}</span>
           </div>
           <span
             style={{ textAlign: "left", display: "block", marginTop: "0.2rem" }}
@@ -37,6 +49,11 @@ const TransactionList = () => {
           </span>
         </div>
       ))}
+
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2 style={{ display: "block" }}>Total:</h2>
+        <h2 style={{ display: "block" }}>{`Rp ${formatCurrency(sum)}`}</h2>
+      </div>
     </div>
   );
 };

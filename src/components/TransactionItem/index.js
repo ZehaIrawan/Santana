@@ -2,7 +2,7 @@ import React from "react";
 import "./style.css";
 const TransactionItem = ({ date, restaurant, total }) => {
   return (
-    <div className="container" key={date}>
+    <div className="container">
       {/* <div key={date}> */}
       <div
         style={{

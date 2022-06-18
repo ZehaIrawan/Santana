@@ -154,7 +154,6 @@ const Gmail = () => {
     setLoading(true);
     const ids = await getObject();
 
-
     const res = await Promise.all(
       ids?.map(async (email) => {
         const res3 = await getEmail(email.id);
@@ -214,13 +213,12 @@ const Gmail = () => {
         }
 
         return (
-          <>
-            <TransactionItem
-              date={date}
-              total={total}
-              restaurant={restaurant}
-            />
-          </>
+          <TransactionItem
+            key={date}
+            date={date}
+            total={total}
+            restaurant={restaurant}
+          />
         );
       })}
       <div style={{ display: "flex", justifyContent: "space-between" }}>

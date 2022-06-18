@@ -11,3 +11,5 @@
 - [x] Parallel API Call / promise to get email messages value
 - [ ] Detect if Oauth token expires
 - [ ] Improve performance ( Api called twice, unnecessary rerender, etc)
+
+![Screenshot](./screenshot.png)

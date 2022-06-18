@@ -80,13 +80,6 @@ const Gmail = () => {
     );
     const res2 = res.json();
     return res2;
-    // .then((response) => response.json())
-    // .then((content) => {
-    //   return content;
-    // })
-    // .catch((err) => {
-    //   console.log(err);
-    // });
   }
 
   useEffect(() => {
@@ -161,7 +154,6 @@ const Gmail = () => {
     setLoading(true);
     const ids = await getObject();
 
-    // console.log(ids, "ids");
 
     const res = await Promise.all(
       ids?.map(async (email) => {
@@ -170,7 +162,6 @@ const Gmail = () => {
       }),
     );
     setEmailData(res);
-    // console.log(res, "res");
     setLoading(false);
   }
 
@@ -221,7 +212,6 @@ const Gmail = () => {
         if (isTip) {
           date = value.match(/(?<=Dijemput Pada:\s+).*?(?=\s+\+0800)/gs)?.[0];
         }
-        console.log(date);
 
         return (
           <>

@@ -1,5 +1,6 @@
 import { Base64 } from "js-base64";
 import React, { useEffect, useState } from "react";
+import TransactionItem from "./TransactionItem";
 
 const Gmail = () => {
   const [emailList, setEmailList] = useState([]);
@@ -154,65 +155,88 @@ const Gmail = () => {
     ifrm.innerHTML = getMessageBody(message.payload);
   };
 
-  //   useEffect(() => {
-  //     emailList.forEach((email) => {
-  //       getEmail(email.id);
-  //     });
-
-  //     const emails =  await Promise.all(
-  //   storyIds.slice(0, 30).map((storyId) => getStory(storyId))
-  // );
-  // console.log(emails);
-  //   }, [emailList]);
-
   const [loading, setLoading] = useState(false);
 
+  async function fetchMyAPI() {
+    setLoading(true);
+    const ids = await getObject();
+
+    // console.log(ids, "ids");
+
+    const res = await Promise.all(
+      ids?.map(async (email) => {
+        const res3 = await getEmail(email.id);
+        return res3;
+      }),
+    );
+    setEmailData(res);
+    // console.log(res, "res");
+    setLoading(false);
+  }
+
   useEffect(() => {
-    async function fetchMyAPI() {
-      setLoading(true);
-      const ids = await getObject();
-
-      // console.log(ids, "ids");
-
-      const res = await Promise.all(
-        ids?.map(async (email) => {
-          const res3 = await getEmail(email.id);
-          return res3;
-        }),
-      );
-      // setEmailData(res);
-      console.log(res, "res");
-      setLoading(false);
+    if (user) {
+      fetchMyAPI();
     }
-    console.log("called");
-    if (user) fetchMyAPI();
   }, [user]);
 
-  // console.log(emailData, "email data");
+  const formatCurrency = (value) => {
+    const res = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return res;
+  };
 
-  // if (!loading) {
-  //   emailData.map((email) => {
-  //     console.log(email);
-  //     const emailHTML = getMessageBody(email?.payload);
-  //     const { body } = new DOMParser().parseFromString(emailHTML, "text/html");
-  //     const value = body.querySelector("td").innerText;
-  //     console.log(value);
-  //     const total = value
-  //       .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)[0]
-  //       .split("TANGGAL")[0];
-  //     const date = value.match(/(?<=WAKTU\s+).*?(?=\s+\+0800Detail)/gs)?.[0];
-  //     const restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+- )/gs)?.[0];
-  //     console.log(date, restaurant, total);
-  //   });
-  // }
+  let count = 0;
+  console.log(count, "count");
 
   return (
-    <div>
+    <div style={{ margin: "0 auto", width: "50vw" }}>
       <button onClick={getToken}>Get access token</button>
-      <button onClick={getObject}>Load Object</button>
       <button onClick={getEmail}>Load Email</button>
       <button onClick={handleLogout}>Logout</button>
       <div as="iframe" id="iframe"></div>
+      <h1 style={{ textAlign: "left" }}>Transaction List</h1>
+
+      {emailData.map((email, index) => {
+        const emailHTML = getMessageBody(email?.payload);
+        const { body } = new DOMParser().parseFromString(
+          emailHTML,
+          "text/html",
+        );
+        const value = body.querySelector("td").innerText;
+        let isTip = value.includes("Tip");
+
+        let restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+-)/gs)?.[0];
+        if (isTip) restaurant = "Tip";
+
+        let total = value
+          .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)?.[0]
+          .replace(/TANGGAL|\|/g, "");
+
+        if (isTip) {
+          total = value.match(/(?<=RP\s+).*?(?=\s+Tip)/gs)?.[0];
+        }
+
+        count += parseInt(total);
+
+        let date = value?.split("WAKTU")[1]?.split(":")?.[0];
+        if (isTip) {
+          date = value.match(/(?<=Dijemput Pada:\s+).*?(?=\s+Kode)/gs)?.[0];
+        }
+
+        return (
+          <>
+            <TransactionItem
+              date={date}
+              total={total}
+              restaurant={restaurant}
+            />
+          </>
+        );
+      })}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2 style={{ display: "block" }}>Total:</h2>
+        <h2 style={{ display: "block" }}>{`Rp ${formatCurrency(count)}`}</h2>
+      </div>
     </div>
   );
 };

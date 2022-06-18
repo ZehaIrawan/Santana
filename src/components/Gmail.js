@@ -186,7 +186,6 @@ const Gmail = () => {
   };
 
   let count = 0;
-  console.log(count, "count");
 
   return (
     <div style={{ margin: "0 auto", width: "50vw" }}>
@@ -218,10 +217,11 @@ const Gmail = () => {
 
         count += parseInt(total);
 
-        let date = value?.split("WAKTU")[1]?.split(":")?.[0];
+        let date = `${value?.split("WAKTU")[1]?.split(":")?.[0]}:00`;
         if (isTip) {
-          date = value.match(/(?<=Dijemput Pada:\s+).*?(?=\s+Kode)/gs)?.[0];
+          date = value.match(/(?<=Dijemput Pada:\s+).*?(?=\s+\+0800)/gs)?.[0];
         }
+        console.log(date);
 
         return (
           <>

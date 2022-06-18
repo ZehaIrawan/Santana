@@ -17,7 +17,7 @@ const TransactionItem = ({ date, restaurant, total }) => {
       <span
         style={{ textAlign: "left", display: "block", marginTop: "0.2rem" }}
       >
-        {`${date}:00`}
+        {date}
       </span>
       {/* </div> */}
     </div>

@@ -23,7 +23,7 @@ const Layout = (props) => {
     <>
       <NavigationBar />
       {loading ? (
-        <CircularProgress />
+        <CircularProgress style={{ margin: "0 auto" }} />
       ) : (
         <>
           <div>{children}</div>

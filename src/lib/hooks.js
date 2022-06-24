@@ -4,7 +4,7 @@ import { auth } from "../lib/firebase";
 export function useUserData() {
   const [user, loading, error] = useAuthState(auth);
 
-  console.log(user, loading, error, "hooks");
+  // console.log(user, loading, error, "hooks");
   // useEffect(() => {
   //   // turn off realtime subscription
   //   let unsubscribe;

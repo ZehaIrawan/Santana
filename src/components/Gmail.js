@@ -180,7 +180,6 @@ const Gmail = () => {
   return (
     <div style={{ margin: "0 auto", width: "50vw" }}>
       <button onClick={getToken}>Get access token</button>
-      <button onClick={getEmail}>Load Email</button>
       <button onClick={handleLogout}>Logout</button>
       <div as="iframe" id="iframe"></div>
       <h1 style={{ textAlign: "left" }}>Transaction List</h1>

@@ -70,7 +70,7 @@ const TransactionList = () => {
           onChange={handleChange}
           inputProps={{ "aria-label": "controlled" }}
         />
-        <Typography>Asc</Typography>
+        <Typography>Ascending</Typography>
       </Box>
 
       {transactions.map((item) => {

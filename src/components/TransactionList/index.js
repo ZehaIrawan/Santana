@@ -1,4 +1,12 @@
-import { collection, getDocs } from "firebase/firestore";
+import { Box, Button, Switch, Typography } from "@mui/material";
+import {
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { default as moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { db } from "../../lib/firebase";
@@ -6,12 +14,24 @@ import "./style.css";
 
 const TransactionList = () => {
   const [transactions, setTransactionts] = useState([]);
+  const [checked, setChecked] = React.useState(true);
+
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+  };
 
   useEffect(() => {
     async function getData() {
-      const querySnapshot = await getDocs(collection(db, "transactions"));
+      const q = query(
+        collection(db, "transactions"),
+        orderBy("date", checked ? "asc" : "desc"),
+      );
+
+      const querySnapshot = await getDocs(q);
+
       let res = [];
       querySnapshot.forEach((doc) => {
+        // console.log(doc.data(), "doc");
         res.push(doc.data());
       });
       if (res.length > 0) {
@@ -19,22 +39,17 @@ const TransactionList = () => {
       }
     }
     getData();
-  }, []);
+  }, [checked]);
 
-  // const data = [
-  //   {
-  //     date: "07 Jun 22 18:33",
-  //     restaurant: "Nasi Kulit Syuurga",
-  //     total: "94750",
-  //   },
-  //   {
-  //     date: "10 Jun 22 17:57",
-  //     restaurant: "Ayam Gedebuk Samarinda",
-  //     total: "82000",
-  //   },
-  // ];
+  const trxId = "Vs6BzusoM3rCqIG30PYx";
 
-  console.log(transactions);
+  const handleAdd = async (timeStamp) => {
+    const videosRef = doc(db, "transactions", trxId);
+    await updateDoc(videosRef, {
+      timeStamp,
+    });
+    alert("ss");
+  };
 
   const sum = transactions.reduce(function (previousValue, currentValue) {
     return previousValue + parseInt(currentValue.total);
@@ -49,10 +64,23 @@ const TransactionList = () => {
     <div className="container">
       <h1 style={{ textAlign: "left" }}>Transaction List</h1>
 
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Switch
+          checked={checked}
+          onChange={handleChange}
+          inputProps={{ "aria-label": "controlled" }}
+        />
+        <Typography>Asc</Typography>
+      </Box>
+
       {transactions.map((item) => {
-        console.log(moment(item.date).fromNow());
         return (
           <div key={item.date}>
+            <Button
+              onClick={() => handleAdd(moment("07 Jun 22 18:33").format("X"))}
+            >
+              Add
+            </Button>
             <div
               style={{
                 display: "flex",
@@ -60,7 +88,7 @@ const TransactionList = () => {
                 marginTop: "1rem",
               }}
             >
-              <span>{item.restaurant}</span>
+              <span>{item.transactionName}</span>
               <span>{`- Rp ${formatCurrency(item.total)}`}</span>
             </div>
             <span

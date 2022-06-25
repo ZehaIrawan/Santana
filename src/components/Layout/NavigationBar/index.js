@@ -18,7 +18,7 @@ import React from "react";
 import { auth } from "../../../lib/firebase";
 import { useUserData } from "../../../lib/hooks";
 
-const pages = ["dashboard"];
+const pages = ["Dashboard"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const NavigationBar = () => {
@@ -67,9 +67,7 @@ const NavigationBar = () => {
               color: "inherit",
               textDecoration: "none",
             }}
-          >
-            LOGO
-          </Typography>
+          ></Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -135,7 +133,7 @@ const NavigationBar = () => {
               // >
               <Link
                 key={page}
-                href={`/${page}`}
+                href={`/${page.toLowerCase()}`}
                 sx={{ color: "inherit", fontWeight: 600 }}
               >
                 {page}

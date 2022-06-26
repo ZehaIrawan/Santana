@@ -1,20 +1,36 @@
-import { Box, Button, Switch, Typography } from "@mui/material";
+import { Box, Button, Switch, TextField, Typography } from "@mui/material";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import {
+  addDoc,
   collection,
-  doc,
   getDocs,
   orderBy,
   query,
-  updateDoc,
 } from "firebase/firestore";
-import { default as moment } from "moment";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { db } from "../../lib/firebase";
 import "./style.css";
 
 const TransactionList = () => {
   const [transactions, setTransactionts] = useState([]);
   const [checked, setChecked] = React.useState(true);
+
+  const { register, handleSubmit } = useForm();
+
+  const onSubmit = async (payload) => {
+    let { transactionName, total, date } = payload;
+    date = moment(date).format("DD MMM YY h:mm");
+
+    await addDoc(collection(db, "transactions"), {
+      transactionName,
+      total,
+      date,
+    });
+  };
 
   const handleChange = (event) => {
     setChecked(event.target.checked);
@@ -31,7 +47,6 @@ const TransactionList = () => {
 
       let res = [];
       querySnapshot.forEach((doc) => {
-        // console.log(doc.data(), "doc");
         res.push(doc.data());
       });
       if (res.length > 0) {
@@ -41,15 +56,7 @@ const TransactionList = () => {
     getData();
   }, [checked]);
 
-  const trxId = "Vs6BzusoM3rCqIG30PYx";
 
-  const handleAdd = async (timeStamp) => {
-    const videosRef = doc(db, "transactions", trxId);
-    await updateDoc(videosRef, {
-      timeStamp,
-    });
-    alert("ss");
-  };
 
   const sum = transactions.reduce(function (previousValue, currentValue) {
     return previousValue + parseInt(currentValue.total);
@@ -73,14 +80,37 @@ const TransactionList = () => {
         <Typography>Ascending</Typography>
       </Box>
 
+      <form
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          margin: "1rem 0 1rem 0",
+          gap: "1rem",
+        }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <TextField
+          label="Transaction Name"
+          {...register("transactionName")}
+        ></TextField>
+        <TextField
+          label="total"
+          type="number"
+          {...register("total")}
+        ></TextField>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DateTimePicker
+            label="Date&Time picker"
+            {...register("date")}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </LocalizationProvider>
+        <Button type="submit">Submit</Button>
+      </form>
+
       {transactions.map((item) => {
         return (
           <div key={item.date}>
-            <Button
-              onClick={() => handleAdd(moment("07 Jun 22 18:33").format("X"))}
-            >
-              Add
-            </Button>
             <div
               style={{
                 display: "flex",

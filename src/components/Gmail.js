@@ -6,7 +6,9 @@ const Gmail = () => {
   const [emailList, setEmailList] = useState([]);
   const [user, setUser] = useState();
   const [message, setMessage] = useState();
+  const [trxs, setTrxs] = useState([]);
 
+  // console.log(trxs, "trx");
   const [emailData, setEmailData] = useState([]);
 
   let tokenClient;
@@ -19,32 +21,54 @@ const Gmail = () => {
     // "https://www.googleapis.com/auth/userinfo.email",
   ];
 
-  function initTokenClient() {
-    /* global google */
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      prompt: "select_account",
-      callback: (tokenResponse) => {
-        console.log(tokenResponse, "tokenres");
-        localStorage.setItem("santanaToken", tokenResponse.access_token);
-      },
-      scope: scopes.join(" "),
-    });
+  // function initTokenClient() {
+  //   tokenClient = google.accounts.oauth2.initTokenClient({
+  //     client_id: clientId,
+  //     prompt: "select_account",
+  //     callback: (tokenResponse) => {
+  //       console.log(tokenResponse, "tokenres");
+  //       localStorage.setItem("santanaToken", tokenResponse.access_token);
+  //     },
+  //     scope: scopes.join(" "),
+  //   });
+  //   console.log(tokenClient);
+  // }
+
+  // window.onGoogleLibraryLoad = () => {
+  //   initTokenClient();
+  //   console.log("init");
+  // };
+
+  function handleCallbackResponse(response) {
+    console.log(response, "tokenres");
+    localStorage.setItem("santanaToken", response.access_token);
   }
 
-  window.onGoogleLibraryLoad = () => {
-    // console.log("loaded");
-    initTokenClient();
-    // console.log("init");
-  };
+  useEffect(() => {
+    // if (localStorage.getItem("santanaToken") === "") {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: clientId,
+      prompt: "select_account",
+      callback: handleCallbackResponse,
+      scope: scopes.join(" "),
+    });
+
+    google.accounts.id.renderButton(document.getElementById("signInDiv"), {
+      theme: "outline",
+      size: "large",
+    });
+  }, []);
 
   function getToken() {
-    // Re-entrant function to request user consent.
-    // Returns an access token to the callback specified in google.accounts.oauth2.initTokenClient
-    // Use a user gesture to call this function and obtain a new, valid access token
-    // when the previous token expires and a 401 status code is returned by Google API calls.
-    console.log(tokenClient, "tokenclient");
-    tokenClient.requestAccessToken();
+    google.accounts.oauth2
+      .initTokenClient({
+        client_id: clientId,
+        prompt: "select_account",
+        callback: handleCallbackResponse,
+        scope: scopes.join(" "),
+      })
+      .requestAccessToken();
   }
 
   async function getObject() {
@@ -82,7 +106,7 @@ const Gmail = () => {
     return res2;
   }
 
-  console.log(emailData, "emailDATA");
+  // console.log(emailData, "emailDATA");
 
   useEffect(() => {
     if (santanaToken !== "") {
@@ -155,13 +179,8 @@ const Gmail = () => {
   async function fetchMyAPI() {
     setLoading(true);
     const ids = await getObject();
-
-    const res = await Promise.all(
-      ids?.map(async (email) => {
-        const res3 = await getEmail(email.id);
-        return res3;
-      }),
-    );
+    const promises = ids?.map((email) => getEmail(email.id));
+    const res = await Promise.all(promises);
     setEmailData(res);
     setLoading(false);
   }
@@ -173,8 +192,12 @@ const Gmail = () => {
   }, [user]);
 
   const formatCurrency = (value) => {
-    const res = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return res;
+    // const res =
+    if (value) {
+      // console.log(value);
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    return "Something wrong";
   };
 
   let count = 0;
@@ -182,6 +205,7 @@ const Gmail = () => {
   return (
     <div style={{ margin: "0 auto", width: "50vw" }}>
       <button onClick={getToken}>Get access token</button>
+      <div id="signInDiv"></div>
       <button onClick={handleLogout}>Logout</button>
       <div as="iframe" id="iframe"></div>
       <h1 style={{ textAlign: "left" }}>Transaction List</h1>
@@ -196,15 +220,32 @@ const Gmail = () => {
         let isTip = value.includes("Tip");
 
         let restaurant = value.match(/(?<=Dari:\s+).*?(?=\s+-)/gs)?.[0];
+
         if (isTip) restaurant = "Tip";
+
+        // console.log(emailData.length);
+        // console.log(index);
+        if (index === 0 || index === emailData.length) {
+          console.log(typeof value, "12");
+          // let res = value.replace(/[\r\n]/gm, "");
+          let res2 = value.replace(/\s\s+/g, " ");
+          console.log(
+            res2,
+            // .match(/(?<= Selamat\s+).*?(?=\s+makanan)/gs),
+            "trimm",
+            index,
+          );
+          // console.log(value, "valuee");
+        }
 
         let total = value
           .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)?.[0]
-          .replace(/TANGGAL|\|/g, "");
+          ?.replace(/TANGGAL|\|/g, "");
 
         if (isTip) {
           total = value.match(/(?<=RP\s+).*?(?=\s+Tip)/gs)?.[0];
         }
+        if (!total) total = 9999;
 
         count += parseInt(total);
 
@@ -212,6 +253,11 @@ const Gmail = () => {
         if (isTip) {
           date = value.match(/(?<=Dijemput Pada:\s+).*?(?=\s+\+0800)/gs)?.[0];
         }
+
+        // setTrxs([
+        //   ...trxs,
+        //   { id: email.id, transactionName: restaurant, date, total },
+        // ]);
 
         return (
           <TransactionItem

@@ -1,8 +1,16 @@
-import React from "react";
-import Gmail from "../FetchPage";
+import Gmail from "../../components/Gmail";
+import Layout from "../../components/Layout";
+import { useUserData } from "../../lib/hooks";
 
 const FetchPage = () => {
-  return <Gmail />;
+  const userData = useUserData();
+
+  const { user, loading } = userData;
+  return (
+    <Layout isLoading={loading}>
+      <Gmail />
+    </Layout>
+  );
 };
 
 export default FetchPage;

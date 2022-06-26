@@ -1,5 +1,5 @@
 import { CircularProgress } from "@mui/material";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../../lib/hooks";
 // import { useAuth } from "../../context/AuthContext";
@@ -19,10 +19,11 @@ const Layout = (props) => {
     }
   }, [user, loading, navigate]);
 
+  console.log(isLoading);
   return (
     <>
       <NavigationBar />
-      {loading ? (
+      {isLoading ? (
         <CircularProgress style={{ margin: "0 auto" }} />
       ) : (
         <>

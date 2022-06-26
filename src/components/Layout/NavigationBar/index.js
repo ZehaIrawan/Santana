@@ -18,9 +18,6 @@ import React from "react";
 import { auth } from "../../../lib/firebase";
 import { useUserData } from "../../../lib/hooks";
 
-const pages = ["Dashboard"];
-// const settings = ["Profile", "Account", "Dashboard", "Logout"];
-
 const NavigationBar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -46,7 +43,7 @@ const NavigationBar = () => {
 
   const userData = useUserData();
 
-  const { user, loading } = userData;
+  const { user } = userData;
 
   return (
     <AppBar position="static">
@@ -98,11 +95,11 @@ const NavigationBar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
+              {/* {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
-              ))}
+              ))} */}
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -125,21 +122,15 @@ const NavigationBar = () => {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              // <Button
-              //   key={page}
-              //   onClick={handleCloseNavMenu}
-              //   sx={{ my: 2, color: "white", display: "block" }}
-              // >
-              <Link
-                key={page}
-                href={`/${page.toLowerCase()}`}
-                sx={{ color: "inherit", fontWeight: 600 }}
-              >
-                {page}
-              </Link>
-              // </Button>
-            ))}
+            <Link
+              href={`/dashboard`}
+              sx={{ color: "inherit", fontWeight: 600, marginRight: "1rem" }}
+            >
+              Dashboard
+            </Link>
+            <Link href={`/fetch`} sx={{ color: "inherit", fontWeight: 600 }}>
+              Fetch
+            </Link>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>

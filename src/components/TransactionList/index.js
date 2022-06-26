@@ -22,6 +22,7 @@ import "./style.css";
 const TransactionList = () => {
   const [transactions, setTransactionts] = useState([]);
   const [checked, setChecked] = React.useState(true);
+  const [isAdding, setIsAdding] = useState(false);
 
   const { register, handleSubmit } = useForm();
 
@@ -93,42 +94,64 @@ const TransactionList = () => {
     <div className="container">
       <h1 style={{ textAlign: "left" }}>Transaction List</h1>
 
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Switch
-          checked={checked}
-          onChange={handleChange}
-          inputProps={{ "aria-label": "controlled" }}
-        />
-        <Typography>Ascending</Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box>
+          <Switch
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ "aria-label": "controlled" }}
+          />
+          <Typography>Ascending</Typography>
+        </Box>
+        <Box>
+          {!isAdding && (
+            <Button variant="contained" onClick={() => setIsAdding(true)}>
+              Add New Transaction
+            </Button>
+          )}
+        </Box>
       </Box>
 
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          margin: "1rem 0 1rem 0",
-          gap: "1rem",
-        }}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <TextField
-          label="Transaction Name"
-          {...register("transactionName")}
-        ></TextField>
-        <TextField
-          label="total"
-          type="number"
-          {...register("total")}
-        ></TextField>
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DateTimePicker
-            label="Date&Time picker"
-            {...register("date")}
-            renderInput={(params) => <TextField {...params} />}
-          />
-        </LocalizationProvider>
-        <Button type="submit">Submit</Button>
-      </form>
+      {isAdding && (
+        <form
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            margin: "1rem 0 1rem 0",
+            gap: "1rem",
+          }}
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <TextField
+            label="Transaction Name"
+            {...register("transactionName")}
+          ></TextField>
+          <TextField
+            label="total"
+            type="number"
+            {...register("total")}
+          ></TextField>
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DateTimePicker
+              label="Date&Time picker"
+              {...register("date")}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+          <Box>
+            <Button
+              variant="contained"
+              sx={{ marginRight: "1rem" }}
+              onClick={() => setIsAdding(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="contained" type="submit">
+              Submit
+            </Button>
+          </Box>
+        </form>
+      )}
 
       {transactions.map((item) => {
         return (

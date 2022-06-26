@@ -1,5 +1,4 @@
 import Gmail from "../../components/Gmail";
-import Layout from "../../components/Layout";
 import { useUserData } from "../../lib/hooks";
 
 const FetchPage = () => {
@@ -7,9 +6,9 @@ const FetchPage = () => {
 
   const { user, loading } = userData;
   return (
-    <Layout isLoading={loading}>
-      <Gmail />
-    </Layout>
+    // <Layout isLoading={loading}>
+    <Gmail />
+    // </Layout>
   );
 };
 

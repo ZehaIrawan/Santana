@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionItem from "./TransactionItem";
 
 const Gmail = () => {
@@ -81,6 +81,8 @@ const Gmail = () => {
     const res2 = res.json();
     return res2;
   }
+
+  console.log(emailData, "emailDATA");
 
   useEffect(() => {
     if (santanaToken !== "") {

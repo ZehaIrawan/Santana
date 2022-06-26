@@ -223,29 +223,25 @@ const Gmail = () => {
 
         if (isTip) restaurant = "Tip";
 
-        // console.log(emailData.length);
-        // console.log(index);
-        if (index === 0 || index === emailData.length) {
-          console.log(typeof value, "12");
-          // let res = value.replace(/[\r\n]/gm, "");
-          let res2 = value.replace(/\s\s+/g, " ");
-          console.log(
-            res2,
-            // .match(/(?<= Selamat\s+).*?(?=\s+makanan)/gs),
-            "trimm",
-            index,
-          );
-          // console.log(value, "valuee");
-        }
+        let firstPartTotal = value?.replace(/\s\s+/g, " ");
+        let secondPartTotal = firstPartTotal.match(
+          /(?<=Rp\s+).*?(?=\s+TANGGAL)/gs,
+        );
 
-        let total = value
-          .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)?.[0]
-          ?.replace(/TANGGAL|\|/g, "");
+        let total = secondPartTotal?.[0];
 
         if (isTip) {
           total = value.match(/(?<=RP\s+).*?(?=\s+Tip)/gs)?.[0];
         }
-        if (!total) total = 9999;
+
+        if (!total) {
+          total = firstPartTotal.match(/(?<=RP\s+).*?(?=\s+TANGGAL)/gs)?.[0];
+        }
+        if (!total) {
+          total = firstPartTotal
+            .match(/(?<=Rp\s+).*?(?=\s+WAKTU)/gs)?.[0]
+            .replace("TANGGAL |", "");
+        }
 
         count += parseInt(total);
 
